@@ -294,16 +294,26 @@ void DMA1_Stream5_IRQHandler(void)
 			RxLen = MTi_630_RXBUFFSIZE - __HAL_DMA_GET_COUNTER(&hdma_usart2_rx);	
 
 		  
-		  /* Progress the reveiving data -copy buffer content to MTi_630_aRxBuffer*/
+		  /* Progress the receiving data. Copy buffer content to MTi_630_aRxBuffer*/
 			if(READ_BIT(hdma_usart2_rx.Instance->CR,DMA_SxCR_CT) == MTI630_BUFFER0)
 			{
-					copySrcBufferToDesMem(MTi_630_aRxBuffer0,MTi_630_aRxBuffer,MTi_630_RXBUFFSIZE);
-//					USB2UART_SendData(MTi_630_aRxBuffer0,MTi_630_RXBUFFSIZE);
+					if((MTi630DataReceiveReg&IMU_RECEIVE_SWITCH)==ENABLE_IMU_RECEIVE)
+					{
+							MTi_630_aRxBuffer = MTi_630_aRxBuffer0;
+						
+							/* Receive completely */
+						  MTi630DataReceiveReg |= IMU_RECEIVE_COMPLETE;
+					}				
 			}
 			else
 			{
-				  copySrcBufferToDesMem(MTi_630_aRxBuffer1,MTi_630_aRxBuffer,MTi_630_RXBUFFSIZE);
-//					USB2UART_SendData(MTi_630_aRxBuffer1,MTi_630_RXBUFFSIZE);
+					if((MTi630DataReceiveReg&IMU_RECEIVE_SWITCH)==ENABLE_IMU_RECEIVE)
+					{
+							MTi_630_aRxBuffer = MTi_630_aRxBuffer1;
+						
+							/* Receive completely */
+						  MTi630DataReceiveReg |= IMU_RECEIVE_COMPLETE;
+					}
 			}
 	}
 }

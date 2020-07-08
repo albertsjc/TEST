@@ -41,6 +41,8 @@
 
 int main(void)
 {
+	u8 *p = NULL;
+	u16 len=0;
 	//	u8 test[] = "hello";
 	//	u8 len;
 	//	u8 i;
@@ -52,17 +54,20 @@ int main(void)
 	HAL_Init();
 	SystemClock_Config();
 	/* Initialize all configured peripherals */
+	MTi_630_Init(115200);		// ADD A POWER CONTROLLER SWITCH
 	LED_Init();
 	SDRAM_FMC_Init();
 	USB2UART_Init(2000000);
 	DXLMotor_Init(2000000);
 
 	/* Note: MTi630 must initialize at last!!! */
-	MTi_630_Init(921600);
 //	IWDG_Init(IWDG_PRESCALER_64,500); 	//分频数为64,重载值为500,溢出时间为1s	
 
   while (1)
   {
+			getMti630Data(&p,&len);
+			USB2UART_SendData(p,len);
+			HAL_Delay(100);
 	  Data_Receive();
 	  Data_Send();
   }

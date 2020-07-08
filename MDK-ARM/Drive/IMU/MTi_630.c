@@ -6,8 +6,9 @@ DMA_HandleTypeDef hdma_usart2_tx;
 DMA_HandleTypeDef hdma_usart2_rx;
 __align(4) u8 MTi_630_aRxBuffer0[MTi_630_RXBUFFSIZE] __attribute__((at(0XC0000000)));
 __align(4) u8 MTi_630_aRxBuffer1[MTi_630_RXBUFFSIZE] __attribute__((at(0XC0000100)));
-__align(4) u8  MTi_630_aRxBuffer[MTi_630_RXBUFFSIZE] __attribute__((at(0XC0000200)));
-u8 MTi_630_flag=0;
+u8*  MTi_630_aRxBuffer;
+
+__IO u8 MTi630DataReceiveReg=0;
 
 
 /* Private function prototypes -----------------------------------------------*/
@@ -149,6 +150,33 @@ void MTi_630_SendData(u8 *databuf, u8 len)
 	  while(__HAL_UART_GET_FLAG(&huart2,UART_FLAG_TC) != SET);
 }
 
+
+/**
+  * @brief Obtain MTi630 data
+  * @param pdata: the starting address of the buffer memory    
+  * @param len: the size of the buffer
+	* @retval 0:fail 1:successful
+  */
+u8   getMti630Data(u8** pdata, u16* len)
+{
+		/* Clear MTi630 receiving flag */
+		MTi630DataReceiveReg &=(~IMU_RECEIVE_STATUS);
+		
+		/* Enable MTi630 Receive */
+		MTi630DataReceiveReg |= ENABLE_IMU_RECEIVE;
+	
+	  /* Wait until data is received completely */
+		while((MTi630DataReceiveReg&IMU_RECEIVE_STATUS) != IMU_RECEIVE_COMPLETE);
+			
+		*pdata = MTi_630_aRxBuffer;
+		*len = MTi_630_RXBUFFSIZE;
+			
+		/* Disable MTi630 receive */
+		MTi630DataReceiveReg &=(~IMU_RECEIVE_SWITCH);
+			
+	  return 1;
+}
+
 /**
   * @brief IMU  Copy SrcBuffer to DesMem
   * @param SrcBuffer: Souce Buffer
@@ -175,3 +203,5 @@ u8 copySrcBufferToDesMem(u8* SrcBuffer,u8* DesMem,u16 Len)
 //		}
 		return 1;
 }
+
+

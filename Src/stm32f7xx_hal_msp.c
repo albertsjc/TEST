@@ -190,7 +190,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
 		
 		
 		/* USER CODE BEGIN USART2_MspInit 1 */
-		HAL_NVIC_SetPriority(USART2_IRQn, 1, 2);
+		HAL_NVIC_SetPriority(USART2_IRQn, 0, 2);
     HAL_NVIC_EnableIRQ(USART2_IRQn);
 		/* USER CODE END USART2_MspInit 1 */
   }
